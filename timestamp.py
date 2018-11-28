@@ -1,9 +1,5 @@
 import datetime
-
-messages = []
-count = 0
-timestamp = None
-time_diff = datetime.datetime.now()
+import pickle
 
 
 class Message(object):
@@ -26,19 +22,89 @@ class Message(object):
 
 class Note(object):
     def __init__(self, text):
+        self.timestamp = datetime.datetime.now()
         self.text = text
 
     def __str__(self):
         return self.text
 
 
+messages = []
+count = 0
+timestamp = None
+time_diff = datetime.datetime.now()
+todos = []
+
+
+# try:
+f = open('messages.pkl', 'rb')
+messages = pickle.load(f)
+f.close()
+print 'loaded messages'
+f = open('todos.pkl', 'rb')
+todos = pickle.load(f)
+f.close()
+print 'loaded todos'
+# except Exception as e:
+#     print 'failed to load'
+
+
+def pickle_lists():
+    f = open('messages.pkl', 'wb')
+    pickle.dump(messages, f)
+    f.close()
+
+    f = open('todos.pkl', 'wb')
+    pickle.dump(todos, f)
+    f.close()
+
+
+def print_todos():
+    i = 0
+    while i < len(todos):
+        print '{}. {}'.format(i, todos[i])
+        i += 1
+
+
+def delete_todo(i):
+    try:
+        todos.pop(i)
+    except Exception as e:
+        print e.message
+
+
 while True:
     ui = raw_input('>')
+
     if ui == '': continue
     if len(messages) > 100:
         messages.pop(0)
     if ui[0] == ';': # note taking
         messages.append(Note(ui))
+    elif ui[0] == ':':
+        # :d 23 would delete item number 23
+        if ui[:2] == ':p':
+            print_todos()
+            continue
+        if ui[:2] == ':q':
+            pickle_lists()
+            break
+        if len(ui) > 3:
+            if ui[:2] == ':d':
+                try:
+                    i = int(ui.split(' ')[1])
+                    text = todos[i]
+                    delete_todo(i)
+                    print_todos()
+                    print 'deleted', text
+                except Exception as e:
+                    print 'syntax error', e.message
+
+                continue
+
+            else:
+                todos.append(ui)
+        messages.append(ui)
     else:
         count += 1
         for m in reversed(messages):
