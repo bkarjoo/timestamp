@@ -146,7 +146,7 @@ def handleUI(ui):
         if len(ui) == 1 and ui == 'p':
             notes.simple_print()
             return
-        elif len(ui) > 2 and ui[0] == 'd':
+        elif len(ui) > 2 and ui[:2] == 'd ':
             toks = ui.split(' ')
             notes.remove(toks[1])
         else:
